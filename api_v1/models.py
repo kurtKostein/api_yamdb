@@ -3,13 +3,14 @@ from django.db import models
 
 class Titles(models.Model):
     name = models.CharField(max_length=200)
-    year = models.DateTimeField()
+    year = models.IntegerField()
     description = models.TextField()
-    genre = models.ForeignKey(Genres, models.SET_NULL,)
-    category = models.ForeignKey(Categories, models.SET_NULL, )
-
-    def get_year(self):
-    return self.year.year
+    genre = models.ForeignKey(
+        Genres, models.SET_NULL, related_name='title_genre'
+    )
+    category = models.ForeignKey(
+        Categories, models.SET_NULL, related_name='title_category'
+    )
 
 
 class Categories(models.Model):
