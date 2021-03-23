@@ -2,28 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-class Titles(models.Model):
-    pass
-
-
-class Categories(models.Model):
-    pass
-
-
-class Genres(models.Model):
-    pass
-
-
-class Reviews(models.Model):
-    pass
-
-
-class Comments(models.Model):
-    pass
 
 class User(AbstractUser):
-
-# ПОЛЯ
     EMAIL_FIELD = 'email'
     USER_FIELDS = [] # 'username'
     USER_ROLES = [
@@ -44,7 +24,7 @@ class User(AbstractUser):
         default='user'
     )
     bio = models.TextField(max_length=300, blank=True)
-    #
+    
     @property
     def is_admin(self):
         return self.role == 'admin' or self.is_staff
@@ -52,3 +32,32 @@ class User(AbstractUser):
     @property
     def is_moderator(self):
         return self.role == 'moderator'
+
+class Titles(models.Model):
+    name = models.CharField(max_length=200)
+    year = models.IntegerField()
+    description = models.TextField()
+    genre = models.ForeignKey(
+        Genres, models.SET_NULL, related_name='title_genre'
+    )
+    category = models.ForeignKey(
+        Categories, models.SET_NULL, related_name='title_category'
+    )
+
+
+class Categories(models.Model):
+    name = models.CharField(max_length=200)
+    slug = model.CharField(max_length=200)
+
+
+class Genres(models.Model):
+    name = models.CharField(max_length=200)
+    slug = model.CharField(max_length=200)
+
+
+class Reviews(models.Model):
+    pass
+
+
+class Comments(models.Model):
+    pass
