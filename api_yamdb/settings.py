@@ -131,9 +131,9 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1)
 }
 
-DOMAIN_NAME = 'yamdb.ru'
-
 AUTH_USER_MODEL = 'api_v1.User'
+
+DOMAIN_NAME = 'yamdb.ru'
 
 # заглушка. сохраняет писмо в текстовик в отдельную папку
 EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
