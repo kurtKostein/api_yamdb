@@ -1,6 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
-from django.db import models
+from django.contrib.auth.models import AbstractUser, BaseUserManager
+
 
 class Titles(models.Model):
     pass
@@ -24,8 +24,8 @@ class Comments(models.Model):
 class User(AbstractUser):
 
 # ПОЛЯ
-    EMAIL_FIELD = 'email'
-    USER_FIELDS = [] # 'username'
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
     USER_ROLES = [
         ('admin', 'Администратор'),
         ('moderator', 'Модератор'),
@@ -36,15 +36,15 @@ class User(AbstractUser):
     confirmation_code = models.CharField(
         max_length=36,
         blank=True,
+        null=True,
         unique=True
     )
     role = models.CharField(
-        max_length=36,
+        max_length=20,
         choices=USER_ROLES,
-        default='user'
-    )
-    bio = models.TextField(max_length=300, blank=True)
-    #
+        default='user')
+    bio = models.TextField(blank=True)
+
     @property
     def is_admin(self):
         return self.role == 'admin' or self.is_staff
@@ -52,3 +52,4 @@ class User(AbstractUser):
     @property
     def is_moderator(self):
         return self.role == 'moderator'
+
