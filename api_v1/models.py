@@ -2,28 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 
-class Titles(models.Model):
-    pass
-
-
-class Categories(models.Model):
-    pass
-
-
-class Genres(models.Model):
-    pass
-
-
-class Reviews(models.Model):
-    pass
-
-
-class Comments(models.Model):
-    pass
-
 class User(AbstractUser):
 
-# ПОЛЯ
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
     USER_ROLES = [
@@ -53,3 +33,22 @@ class User(AbstractUser):
     def is_moderator(self):
         return self.role == 'moderator'
 
+
+class Titles(models.Model):
+    pass
+
+
+class Categories(models.Model):
+    pass
+
+
+class Genres(models.Model):
+    pass
+
+
+class Reviews(models.Model):
+    pass
+
+
+class Comments(models.Model):
+    pass
