@@ -1,11 +1,10 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
 class User(AbstractUser):
     EMAIL_FIELD = 'email'
-    USER_FIELDS = [] # 'username'
+    USER_FIELDS = []  # 'username'
     USER_ROLES = [
         ('admin', 'Администратор'),
         ('moderator', 'Модератор'),
@@ -24,7 +23,7 @@ class User(AbstractUser):
         default='user'
     )
     bio = models.TextField(max_length=300, blank=True)
-    
+
     @property
     def is_admin(self):
         return self.role == 'admin' or self.is_staff
@@ -33,31 +32,47 @@ class User(AbstractUser):
     def is_moderator(self):
         return self.role == 'moderator'
 
-class Titles(models.Model):
+
+class Title(models.Model):
     name = models.CharField(max_length=200)
     year = models.IntegerField()
     description = models.TextField()
     genre = models.ForeignKey(
-        Genres, models.SET_NULL, related_name='title_genre'
+        to='Genre', on_delete=models.SET_NULL, related_name='title_genre'
     )
     category = models.ForeignKey(
-        Categories, models.SET_NULL, related_name='title_category'
+        to='Category', on_delete=models.SET_NULL, related_name='title_category'
     )
 
 
-class Categories(models.Model):
+class Category(models.Model):
     name = models.CharField(max_length=200)
-    slug = model.CharField(max_length=200)
+    slug = models.CharField(max_length=200)
 
 
-class Genres(models.Model):
+class Genre(models.Model):
     name = models.CharField(max_length=200)
-    slug = model.CharField(max_length=200)
+    slug = models.CharField(max_length=200)
 
 
-class Reviews(models.Model):
-    pass
+class Review(models.Model):
+    title_id = models.ForeignKey(
+        to='Title', related_name='reviews', on_delete=models.CASCADE
+    )
+    text = models.TextField()
+    author = models.ForeignKey(
+        to='User', related_name='reviews', on_delete=models.CASCADE
+    )
+    score = models.PositiveIntegerField(null=True, blank=True)
+    pub_date = models.DateTimeField(auto_now_add=True)
 
 
-class Comments(models.Model):
-    pass
+class Comment(models.Model):
+    review_id = models.ForeignKey(
+        to='Review', related_name='reviews', on_delete=models.CASCADE
+    )
+    text = models.TextField()
+    author = models.ForeignKey(
+        to='User', related_name='reviews', on_delete=models.CASCADE
+    )
+    pub_date = models.DateTimeField(auto_now_add=True)
