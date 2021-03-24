@@ -38,10 +38,16 @@ class Title(models.Model):
     year = models.IntegerField()
     description = models.TextField()
     genre = models.ForeignKey(
-        to='Genre', on_delete=models.SET_NULL, related_name='title_genre'
+        to='Genre',
+        on_delete=models.SET_NULL,
+        related_name='title_genre',
+        null=True
     )
     category = models.ForeignKey(
-        to='Category', on_delete=models.SET_NULL, related_name='title_category'
+        to='Category',
+        on_delete=models.SET_NULL,
+        related_name='title_category',
+        null=True
     )
 
 
@@ -57,11 +63,15 @@ class Genre(models.Model):
 
 class Review(models.Model):
     title_id = models.ForeignKey(
-        to='Title', related_name='reviews', on_delete=models.CASCADE
+        to='Title',
+        related_name='reviews',
+        on_delete=models.CASCADE
     )
     text = models.TextField()
     author = models.ForeignKey(
-        to='User', related_name='reviews', on_delete=models.CASCADE
+        to='User',
+        related_name='reviews',
+        on_delete=models.CASCADE
     )
     score = models.PositiveIntegerField(null=True, blank=True)
     pub_date = models.DateTimeField(auto_now_add=True)
@@ -69,10 +79,14 @@ class Review(models.Model):
 
 class Comment(models.Model):
     review_id = models.ForeignKey(
-        to='Review', related_name='reviews', on_delete=models.CASCADE
+        to='Review',
+        related_name='comments',
+        on_delete=models.CASCADE
     )
     text = models.TextField()
     author = models.ForeignKey(
-        to='User', related_name='reviews', on_delete=models.CASCADE
+        to='User',
+        related_name='comments',
+        on_delete=models.CASCADE
     )
     pub_date = models.DateTimeField(auto_now_add=True)
