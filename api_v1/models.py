@@ -3,8 +3,8 @@ from django.db import models
 
 
 class User(AbstractUser):
-    EMAIL_FIELD = 'email'
-    USER_FIELDS = []  # 'username'
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
     USER_ROLES = [
         ('admin', 'Администратор'),
         ('moderator', 'Модератор'),
@@ -14,6 +14,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     confirmation_code = models.CharField(
         max_length=36,
+        null=True,
         blank=True,
         unique=True
     )
@@ -22,7 +23,7 @@ class User(AbstractUser):
         choices=USER_ROLES,
         default='user'
     )
-    bio = models.TextField(max_length=300, blank=True)
+    bio = models.TextField(blank=True)
 
     @property
     def is_admin(self):
