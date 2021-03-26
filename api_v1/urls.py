@@ -7,10 +7,10 @@ from .views import (CategoryViewSet, CommentViewSet,
 
 router = DefaultRouter()
 router.register('users', UserViewSet, basename='users')
-router.register('categories', CategoryViewSet)
-router.register('genres', GenreViewSet)
+router.register(r'categories', CategoryViewSet)
+router.register(r'genres', GenreViewSet)
 router.register(r'titles', TitleViewSet)
-router.register(r'^titles/(?P<titles_id>\d+)', TitleViewSet)
+router.register(r'titles/(?P<titles_id>\d+)', TitleViewSet)
 router.register(r'reviews', ReviewViewSet, basename='reviews')
 router.register(
     r'^reviews/(?P<review_id>\d+)/comments',
