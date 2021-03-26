@@ -1,20 +1,20 @@
-from uuid import uuid4
-
-from django.conf import settings
-from django.core.mail import send_mail
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, status, viewsets
-from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework_simplejwt.views import TokenObtainPairView
-
-from .models import Category, Comment, Genre, Review, Title, User
-from .permissions import IsAdmin, IsAdminOrReadOnly
+from rest_framework.pagination import PageNumberPagination
+from .filters import TitleFilter
 from .serializers import (CategorySerializer, CommentSerializer,
                           EmailCodeTokenObtainPairSerializer, GenreSerializer,
                           ReviewSerializer, TitleSerializer,
                           UserSerializer)
+from .permissions import IsAdmin, IsAdminOrReadOnly
+from .models import Category, Comment, Genre, Review, Title, User
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework import filters, status, viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from django.core.mail import send_mail
+from django.conf import settings
+from uuid import uuid4
 
 
 class EmailCodeTokenObtainPairView(TokenObtainPairView):
@@ -87,25 +87,29 @@ class UserViewSet(viewsets.ModelViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['category__slug', 'genre__slug', 'name', 'year']
+    filterset_class = TitleFilter
     permission_classes = (IsAdminOrReadOnly,)
+    pagination_class = PageNumberPagination
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['name']
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', ]
     permission_classes = (IsAdminOrReadOnly,)
+    pagination_class = PageNumberPagination
+    lookup_field = 'slug'
 
 
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['name']
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', ]
     permission_classes = (IsAdminOrReadOnly,)
+    pagination_class = PageNumberPagination
+    lookup_field = 'slug'
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
