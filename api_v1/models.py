@@ -37,18 +37,14 @@ class User(AbstractUser):
 class Title(models.Model):
     name = models.CharField(max_length=200)
     year = models.IntegerField()
-    description = models.TextField()
-    genre = models.ForeignKey(
-        to='Genre',
-        on_delete=models.SET_NULL,
-        related_name='title_genre',
-        null=True
+    description = models.TextField(blank=True, null=True)
+    genre = models.ManyToManyField(
+        to='Genre', blank=True,
+        related_name='title_genre'
     )
     category = models.ForeignKey(
-        to='Category',
-        on_delete=models.SET_NULL,
-        related_name='title_category',
-        null=True
+        to='Category', on_delete=models.SET_NULL, blank=True, null=True,
+        related_name='title_category'
     )
 
 
