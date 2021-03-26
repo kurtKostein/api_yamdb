@@ -3,8 +3,8 @@ from django.db import models
 
 
 class User(AbstractUser):
-    EMAIL_FIELD = 'email'
-    USER_FIELDS = []  # 'username'
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
     USER_ROLES = [
         ('admin', 'Администратор'),
         ('moderator', 'Модератор'),
@@ -14,6 +14,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     confirmation_code = models.CharField(
         max_length=36,
+        null=True,
         blank=True,
         unique=True
     )
@@ -22,7 +23,7 @@ class User(AbstractUser):
         choices=USER_ROLES,
         default='user'
     )
-    bio = models.TextField(max_length=300, blank=True)
+    bio = models.TextField(blank=True)
 
     @property
     def is_admin(self):
@@ -38,10 +39,16 @@ class Title(models.Model):
     year = models.IntegerField()
     description = models.TextField()
     genre = models.ForeignKey(
-        to='Genre', on_delete=models.SET_NULL, related_name='title_genre'
+        to='Genre',
+        on_delete=models.SET_NULL,
+        related_name='title_genre',
+        null=True
     )
     category = models.ForeignKey(
-        to='Category', on_delete=models.SET_NULL, related_name='title_category'
+        to='Category',
+        on_delete=models.SET_NULL,
+        related_name='title_category',
+        null=True
     )
 
 
@@ -57,11 +64,15 @@ class Genre(models.Model):
 
 class Review(models.Model):
     title_id = models.ForeignKey(
-        to='Title', related_name='reviews', on_delete=models.CASCADE
+        to='Title',
+        related_name='reviews',
+        on_delete=models.CASCADE
     )
     text = models.TextField()
     author = models.ForeignKey(
-        to='User', related_name='reviews', on_delete=models.CASCADE
+        to='User',
+        related_name='reviews',
+        on_delete=models.CASCADE
     )
     score = models.PositiveIntegerField(null=True, blank=True)
     pub_date = models.DateTimeField(auto_now_add=True)
@@ -69,10 +80,14 @@ class Review(models.Model):
 
 class Comment(models.Model):
     review_id = models.ForeignKey(
-        to='Review', related_name='reviews', on_delete=models.CASCADE
+        to='Review',
+        related_name='comments',
+        on_delete=models.CASCADE
     )
     text = models.TextField()
     author = models.ForeignKey(
-        to='User', related_name='reviews', on_delete=models.CASCADE
+        to='User',
+        related_name='comments',
+        on_delete=models.CASCADE
     )
     pub_date = models.DateTimeField(auto_now_add=True)
