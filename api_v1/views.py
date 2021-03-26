@@ -1,18 +1,20 @@
 from uuid import uuid4
+
 from django.conf import settings
 from django.core.mail import send_mail
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, filters, status
+from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.permissions import IsAuthenticated
 
 from .models import Category, Comment, Genre, Review, Title, User
-from .permissions import IsAdminOrReadOnly, IsAdmin
-from .serializer import (CategorySerializer, CommentSerializer,
-                         GenreSerializer, ReviewSerializer, TitleSerializer,
-                         UserSerializer)
+from .permissions import IsAdmin, IsAdminOrReadOnly
+from .serializers import (CategorySerializer, CommentSerializer,
+                          EmailCodeTokenObtainPairSerializer, GenreSerializer,
+                          ReviewSerializer, TitleSerializer,
+                          UserSerializer)
 
 
 class EmailCodeTokenObtainPairView(TokenObtainPairView):
@@ -53,7 +55,8 @@ def send_confirmation_code(request):
         status=status.HTTP_500_INTERNAL_SERVER_ERROR
     )
 
-class UsersViewSet(viewsets.ModelViewSet):
+
+class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     filter_backends = [filters.SearchFilter]
