@@ -6,19 +6,18 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.generics import get_object_or_404
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from .filters import TitleFilter
 from .models import Category, Comment, Genre, Review, Title, User
 from .permissions import (IsAdmin, IsAdminOrReadOnly,
                           IsAuthorAdminModeratorOrReadOnly)
-from rest_framework.pagination import PageNumberPagination
-from .filters import TitleFilter
 from .serializers import (CategorySerializer, CommentSerializer,
                           EmailCodeTokenObtainPairSerializer, GenreSerializer,
-                          ReviewSerializer, TitleSerializer,
-                          UserSerializer)
+                          ReviewSerializer, TitleSerializer, UserSerializer)
 
 
 class EmailCodeTokenObtainPairView(TokenObtainPairView):
@@ -117,7 +116,6 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = (IsAuthorAdminModeratorOrReadOnly,)
 
@@ -132,7 +130,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = (IsAuthorAdminModeratorOrReadOnly,)
 

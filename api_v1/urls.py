@@ -3,35 +3,35 @@ from rest_framework.routers import DefaultRouter
 
 from .views import (CategoryViewSet, CommentViewSet,
                     EmailCodeTokenObtainPairView, GenreViewSet, ReviewViewSet,
-                    send_confirmation_code, TitleViewSet, UserViewSet)
+                    TitleViewSet, UserViewSet, send_confirmation_code)
 
 router = DefaultRouter()
-router.register('users', UserViewSet, basename='users')
+router.register(r'users', UserViewSet)
 router.register(r'categories', CategoryViewSet)
 router.register(r'genres', GenreViewSet)
 router.register(r'titles', TitleViewSet)
-router.register(r'titles/(?P<titles_id>\d+)', TitleViewSet)
-router.register(r'reviews', ReviewViewSet, basename='reviews')
+router.register(r'^titles/(?P<titles_id>\d+)', TitleViewSet)
+router.register(r'reviews', ReviewViewSet, basename='review')
 router.register(
     r'^reviews/(?P<review_id>\d+)/comments',
     CommentViewSet,
-    basename='comments'
+    basename='comment'
 )
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('v1/', include(router.urls)),
     path(
-        'auth/token/',
+        'v1/auth/token/',
         EmailCodeTokenObtainPairView.as_view(),
         name='token_obtain_pair'
     ),
     path(
-        'auth/token/refresh',
+        'v1/auth/token/refresh',
         EmailCodeTokenObtainPairView.as_view(),
         name='token_refresh'
     ),
     path(
-        'auth/email/',
+        'v1/auth/email/',
         send_confirmation_code,
         name='send_confirmation_code'
     )
