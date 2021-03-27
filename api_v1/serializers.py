@@ -77,22 +77,48 @@ class EmailCodeTokenObtainPairSerializer(EmailCodeTokenObtainSerializer):
         return data
 
 
-class TitleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Title
-        fields = '__all__'
-
-
 class CategorySerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Category
+        fields = ['name', 'slug']
+
+
+class CategoryRelatedField(serializers.SlugRelatedField):
+    def to_representation(self, value):
+        serializer = CategorySerializer()
+        return serializer.to_representation(value)
+
+
+class GenreRelatedField(serializers.SlugRelatedField):
+    def to_representation(self, value):
+        serializer = GenreSerializer()
+        return serializer.to_representation(value)
+
+
+class TitleSerializer(serializers.ModelSerializer):
+
+    category = CategoryRelatedField(
+        many=False,
+        queryset=Category.objects.all(),
+        slug_field='slug'
+    )
+
+    genre = GenreRelatedField(
+        many=True,
+        queryset=Genre.objects.all(),
+        slug_field='slug'
+    )
+
+    class Meta:
+        model = Title
         fields = '__all__'
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = '__all__'
+        fields = ['name', 'slug']
 
 
 class ReviewSerializer(serializers.ModelSerializer):
