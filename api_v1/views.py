@@ -6,7 +6,7 @@ from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -123,7 +123,7 @@ class GenreViewSet(DeleteViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (IsAuthorAdminModeratorOrReadOnly,)
+    permission_classes = (IsAuthorAdminModeratorOrReadOnly,IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         title_id = self.kwargs.get('title_id', )
@@ -139,7 +139,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthorAdminModeratorOrReadOnly,)
+    permission_classes = (IsAuthorAdminModeratorOrReadOnly, IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         review_id = self.kwargs.get('review_id', )
