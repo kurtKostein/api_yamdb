@@ -15,6 +15,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.core.mail import send_mail
 from django.conf import settings
 from uuid import uuid4
+from rest_framework.generics import get_object_or_404
 
 
 class EmailCodeTokenObtainPairView(TokenObtainPairView):
@@ -31,14 +32,14 @@ def send_confirmation_code(request):
             data={'error': 'Не передан email'},
             status=status.HTTP_400_BAD_REQUEST
         )
-    try:
-        user = User.objects.get(email=email)
-    except User.DoesNotExist:
+    if User.objects.filter(email=email).update(confirmation_code=uuid4()):
+            user = User.objects.get(email=email)
+    else:
         user = User.objects.create_user(
             username=uuid4(),
             email=email,
             confirmation_code=uuid4()
-        )
+    )
     success = send_mail(
         'Yamdb registration',
         f'Your confirmation code: {user.confirmation_code}',
