@@ -2,7 +2,6 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.core.mail import send_mail
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.generics import get_object_or_404
@@ -12,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .filters import TitleFilter
-from .models import Category, Comment, Genre, Review, Title, User
+from .models import Category, Genre, Review, Title, User
 from .permissions import (IsAdmin, IsAdminOrReadOnly,
                           IsAuthorAdminModeratorOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
@@ -35,13 +34,13 @@ def send_confirmation_code(request):
             status=status.HTTP_400_BAD_REQUEST
         )
     if User.objects.filter(email=email).update(confirmation_code=uuid4()):
-            user = User.objects.get(email=email)
+        user = User.objects.get(email=email)
     else:
         user = User.objects.create_user(
             username=uuid4(),
             email=email,
             confirmation_code=uuid4()
-    )
+        )
     success = send_mail(
         'Yamdb registration',
         f'Your confirmation code: {user.confirmation_code}',
