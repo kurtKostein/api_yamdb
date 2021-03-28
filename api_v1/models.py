@@ -51,12 +51,12 @@ class Title(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=200)
-    slug = models.CharField(max_length=200)
+    slug = models.CharField(max_length=200, unique=True)
 
 
 class Genre(models.Model):
     name = models.CharField(max_length=200)
-    slug = models.CharField(max_length=200)
+    slug = models.CharField(max_length=200, unique=True)
 
 
 class Review(models.Model):
