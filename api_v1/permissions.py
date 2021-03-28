@@ -8,8 +8,7 @@ class IsAuthorAdminModeratorOrReadOnly(permissions.BasePermission):
             return True
 
         if request.method == 'POST':
-            #return bool(request.user and request.user.is_authenticated)
-            return not request.user.is_anonymous()
+            return bool(request.user and request.user.is_authenticated)
 
         return bool(
             request.user and (
