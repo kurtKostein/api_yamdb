@@ -123,10 +123,7 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     title_id = serializers.PrimaryKeyRelatedField(read_only=True)
-    author = serializers.SlugRelatedField(
-        slug_field='username', read_only=True,
-        default=serializers.CurrentUserDefault()
-    )
+    author = serializers.ReadOnlyField(source='author.username')
 
     class Meta:
         model = Review

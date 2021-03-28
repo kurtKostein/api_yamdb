@@ -2,8 +2,7 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.core.mail import send_mail
-
-from rest_framework import filters, status, viewsets, mixins
+from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
@@ -129,11 +128,13 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         title_id = self.kwargs.get('title_id', )
         title = get_object_or_404(Title, pk=title_id)
-        return title.reviews.all()
+        return title.reviews.all().order_by('pub_date')
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user,
-                        title_id=self.kwargs.get('title_id'))
+        serializer.save(
+            author=self.request.user,
+            title_id=get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+        )
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -143,8 +144,10 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         review_id = self.kwargs.get('review_id', )
         review = get_object_or_404(Review, pk=review_id)
-        return review.comments.all()
+        return review.comments.all().order_by('pub_date')
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user,
-                        review_id=self.kwargs.get('review_id'))
+        serializer.save(
+            author=self.request.user,
+            review_id=get_object_or_404(Review,pk=self.kwargs.get('review_id'))
+        )
