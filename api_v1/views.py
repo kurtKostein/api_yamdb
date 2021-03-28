@@ -2,7 +2,6 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.core.mail import send_mail
-from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.generics import get_object_or_404
@@ -12,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from .filters import TitleFilter
-from .models import Category, Comment, Genre, Review, Title, User
+from .models import Category, Genre, Review, Title, User
 from .permissions import (IsAdmin, IsAdminOrReadOnly,
                           IsAuthorAdminModeratorOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
@@ -34,9 +33,9 @@ def send_confirmation_code(request):
             data={'error': 'Не передан email'},
             status=status.HTTP_400_BAD_REQUEST
         )
-    try:
+    if User.objects.filter(email=email).update(confirmation_code=uuid4()):
         user = User.objects.get(email=email)
-    except User.DoesNotExist:
+    else:
         user = User.objects.create_user(
             username=uuid4(),
             email=email,
@@ -120,9 +119,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthorAdminModeratorOrReadOnly,)
 
     def get_queryset(self):
-        title_id = self.kwargs.get('review_id', )
+        title_id = self.kwargs.get('title_id', )
         title = get_object_or_404(Title, pk=title_id)
-        return title.reviews
+        return title.reviews.all()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user,
@@ -136,7 +135,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         review_id = self.kwargs.get('review_id', )
         review = get_object_or_404(Review, pk=review_id)
-        return review.comments
+        return review.comments.all()
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user,
