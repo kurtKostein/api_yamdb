@@ -77,31 +77,69 @@ class EmailCodeTokenObtainPairSerializer(EmailCodeTokenObtainSerializer):
         return data
 
 
-class TitleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Title
-        fields = '__all__'
-
-
 class CategorySerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Category
+        fields = ['name', 'slug']
+
+
+class CategoryRelatedField(serializers.SlugRelatedField):
+    def to_representation(self, value):
+        serializer = CategorySerializer()
+        return serializer.to_representation(value)
+
+
+class GenreRelatedField(serializers.SlugRelatedField):
+    def to_representation(self, value):
+        serializer = GenreSerializer()
+        return serializer.to_representation(value)
+
+
+class TitleSerializer(serializers.ModelSerializer):
+
+    category = CategoryRelatedField(
+        many=False,
+        queryset=Category.objects.all(),
+        slug_field='slug'
+    )
+
+    genre = GenreRelatedField(
+        many=True,
+        queryset=Genre.objects.all(),
+        slug_field='slug'
+    )
+
+    class Meta:
+        model = Title
         fields = '__all__'
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = '__all__'
+        fields = ['name', 'slug']
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    title_id = serializers.PrimaryKeyRelatedField(read_only=True)
+    author = serializers.SlugRelatedField(
+        slug_field='username', read_only=True,
+        default=serializers.CurrentUserDefault()
+    )
+
     class Meta:
         model = Review
         fields = '__all__'
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    review_id = serializers.PrimaryKeyRelatedField(read_only=True)
+    author = serializers.SlugRelatedField(
+        slug_field='username', read_only=True,
+        default=serializers.CurrentUserDefault()
+    )
+
     class Meta:
         model = Comment
         fields = '__all__'

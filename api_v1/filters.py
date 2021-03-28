@@ -1,6 +1,6 @@
 import django_filters
 
-from .models import Title, Category
+from .models import Category, Title
 
 
 class TitleFilter(django_filters.FilterSet):

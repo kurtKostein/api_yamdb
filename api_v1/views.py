@@ -1,21 +1,26 @@
+from uuid import uuid4
+from django.conf import settings
+from django.core.mail import send_mail
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, status, viewsets
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenObtainPairView
+
 from .filters import TitleFilter
+from .models import Category, Comment, Genre, Review, Title, User
+from .permissions import (IsAdmin, IsAdminOrReadOnly,
+                          IsAuthorAdminModeratorOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
                           EmailCodeTokenObtainPairSerializer, GenreSerializer,
                           ReviewSerializer, TitleSerializer,
                           UserSerializer)
 from .permissions import IsAdmin, IsAdminOrReadOnly
 from .models import Category, Comment, Genre, Review, Title, User
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework import filters, status, viewsets
-from django_filters.rest_framework import DjangoFilterBackend
-from django.core.mail import send_mail
-from django.conf import settings
-from uuid import uuid4
-from rest_framework.generics import get_object_or_404
+
 
 
 class EmailCodeTokenObtainPairView(TokenObtainPairView):
@@ -114,10 +119,28 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = (IsAuthorAdminModeratorOrReadOnly,)
+
+    def get_queryset(self):
+        title_id = self.kwargs.get('review_id', )
+        title = get_object_or_404(Title, pk=title_id)
+        return title.reviews
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user,
+                        title_id=self.kwargs.get('title_id'))
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    permission_classes = (IsAuthorAdminModeratorOrReadOnly,)
+
+    def get_queryset(self):
+        review_id = self.kwargs.get('review_id', )
+        review = get_object_or_404(Review, pk=review_id)
+        return review.comments
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user,
+                        review_id=self.kwargs.get('review_id'))

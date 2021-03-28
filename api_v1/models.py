@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from uuid import uuid4
 
@@ -51,12 +52,12 @@ class Title(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=200)
-    slug = models.CharField(max_length=200)
+    slug = models.CharField(max_length=200, unique=True)
 
 
 class Genre(models.Model):
     name = models.CharField(max_length=200)
-    slug = models.CharField(max_length=200)
+    slug = models.CharField(max_length=200, unique=True)
 
 
 class Review(models.Model):
@@ -71,7 +72,10 @@ class Review(models.Model):
         related_name='reviews',
         on_delete=models.CASCADE
     )
-    score = models.PositiveIntegerField(null=True, blank=True)
+    score = models.PositiveSmallIntegerField(
+        default=1,
+        validators=[MinValueValidator(1), MaxValueValidator(10)]
+    )
     pub_date = models.DateTimeField(auto_now_add=True)
 
 
