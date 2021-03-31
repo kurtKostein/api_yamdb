@@ -14,13 +14,13 @@ class UserSerializer(serializers.ModelSerializer):
 
 class ConfirmationCodeField(serializers.CharField):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         kwargs.setdefault('style', {})
 
         kwargs['style']['input_type'] = 'confirmation_code'
         kwargs['write_only'] = True
 
-        super().__init__(*args, **kwargs)
+        super().__init__()
 
 
 class EmailCodeTokenObtainSerializer(serializers.Serializer):
@@ -78,7 +78,6 @@ class EmailCodeTokenObtainPairSerializer(EmailCodeTokenObtainSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Category
         fields = ['name', 'slug']
@@ -97,7 +96,6 @@ class GenreRelatedField(serializers.SlugRelatedField):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-
     category = CategoryRelatedField(
         many=False,
         queryset=Category.objects.all(),
@@ -109,6 +107,8 @@ class TitleSerializer(serializers.ModelSerializer):
         queryset=Genre.objects.all(),
         slug_field='slug'
     )
+
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Title
@@ -122,8 +122,21 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
-    title_id = serializers.PrimaryKeyRelatedField(read_only=True)
+    title = serializers.PrimaryKeyRelatedField(read_only=True)
     author = serializers.ReadOnlyField(source='author.username')
+
+    def validate(self, data):
+        request = self.context['request']
+
+        if request.method != 'POST':
+            return data
+        user = request.user
+        title_id = (request.parser_context['kwargs']['title_id'])
+
+        if Review.objects.filter(author=user, title_id=title_id).exists():
+            raise serializers.ValidationError(
+                'Вы уже оставили отзыв на данное произведение')
+        return data
 
     class Meta:
         model = Review
@@ -132,10 +145,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     review_id = serializers.PrimaryKeyRelatedField(read_only=True)
-    author = serializers.SlugRelatedField(
-        slug_field='username', read_only=True,
-        default=serializers.CurrentUserDefault()
-    )
+    author = serializers.ReadOnlyField(source='author.username')
 
     class Meta:
         model = Comment
