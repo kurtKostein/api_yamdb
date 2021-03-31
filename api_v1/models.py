@@ -60,7 +60,7 @@ class Genre(models.Model):
 
 
 class Review(models.Model):
-    title_id = models.ForeignKey(
+    title = models.ForeignKey(
         to='Title',
         related_name='reviews',
         on_delete=models.CASCADE
