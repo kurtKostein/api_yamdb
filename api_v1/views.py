@@ -2,6 +2,7 @@ from uuid import uuid4
 
 from django.conf import settings
 from django.core.mail import send_mail
+from django.db.models import Avg
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.generics import get_object_or_404
@@ -60,7 +61,7 @@ def send_confirmation_code(request):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by('first_name')
     serializer_class = UserSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['username']
@@ -94,6 +95,11 @@ class TitleViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = PageNumberPagination
 
+    def get_queryset(self):
+        rating = Title.objects.all().annotate(
+            rating=Avg('reviews__score')).order_by('rating')
+        return rating
+
 
 class DeleteViewSet(mixins.DestroyModelMixin,
                     mixins.ListModelMixin,
@@ -124,18 +130,18 @@ class GenreViewSet(DeleteViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
+    pagination_class = PageNumberPagination
     permission_classes = (IsAuthorAdminModeratorOrReadOnly,
                           IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        title_id = self.kwargs.get('title_id', )
-        title = get_object_or_404(Title, pk=title_id)
+        title = get_object_or_404(Title, pk=self.kwargs.get('title_id', ))
         return title.reviews.all().order_by('pub_date')
 
     def perform_create(self, serializer):
         serializer.save(
             author=self.request.user,
-            title_id=get_object_or_404(Title, pk=self.kwargs.get('title_id'))
+            title=get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         )
 
 
@@ -152,5 +158,6 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(
             author=self.request.user,
-            review_id=get_object_or_404(Review,pk=self.kwargs.get('review_id'))
+            review_id=get_object_or_404(
+                Review, pk=self.kwargs.get('review_id'))
         )
