@@ -21,7 +21,7 @@ router.register(
     basename='comments'
 )
 
-urlpatterns = [
+urlpatterns = [  # Хорошая организация
     path('v1/', include(router.urls)),
     path(
         'v1/auth/token/',

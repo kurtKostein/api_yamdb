@@ -5,6 +5,10 @@ class IsAuthorAdminModeratorOrReadOnly(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
+            """
+            Здесь и в следующем классе стоит объединить условия в одно выражение с одним return.
+            Можно лучше
+            """
             return True
 
         if request.method == 'POST':
@@ -23,6 +27,13 @@ class IsAdminOrReadOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
+            """
+            if foo:
+                return True
+            return False 
+            всегда стоит заменить на return foo.
+            Можно лучше
+            """
             return True
 
         if request.user.is_authenticated:

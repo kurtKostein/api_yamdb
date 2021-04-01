@@ -101,7 +101,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         return rating
 
 
-class DeleteViewSet(mixins.DestroyModelMixin,
+class DeleteViewSet(mixins.DestroyModelMixin,  # хорошо
                     mixins.ListModelMixin,
                     mixins.CreateModelMixin,
                     viewsets.GenericViewSet):
@@ -154,6 +154,10 @@ class CommentViewSet(viewsets.ModelViewSet):
         review_id = self.kwargs.get('review_id', )
         review = get_object_or_404(Review, pk=review_id)
         return review.comments.all().order_by('pub_date')
+    """
+    а давайте все сортировки в метаклассах обозначим
+    Можно лучше    
+    """
 
     def perform_create(self, serializer):
         serializer.save(

@@ -81,6 +81,10 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['name', 'slug']
+        """
+        Для исключения всего одного поля лучше использовать exclude
+        Надо исправить
+        """
 
 
 class CategoryRelatedField(serializers.SlugRelatedField):
