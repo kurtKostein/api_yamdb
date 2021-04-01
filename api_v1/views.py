@@ -144,6 +144,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
             title=get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         )
 
+    class Meta:
+        ordering = ['-pub_date']
+
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
@@ -153,7 +156,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         review_id = self.kwargs.get('review_id', )
         review = get_object_or_404(Review, pk=review_id)
-        return review.comments.all().order_by('pub_date')
+        return review.comments.all()
 
     def perform_create(self, serializer):
         serializer.save(
@@ -161,3 +164,6 @@ class CommentViewSet(viewsets.ModelViewSet):
             review=get_object_or_404(
                 Review, pk=self.kwargs.get('review_id'))
         )
+
+    class Meta:
+        ordering = ['-pub_date']
