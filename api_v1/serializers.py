@@ -80,7 +80,7 @@ class EmailCodeTokenObtainPairSerializer(EmailCodeTokenObtainSerializer):
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['name', 'slug']
+        exclude = ('id', )
 
 
 class CategoryRelatedField(serializers.SlugRelatedField):
@@ -118,7 +118,7 @@ class TitleSerializer(serializers.ModelSerializer):
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = ['name', 'slug']
+        exclude = ('id', )
 
 
 class ReviewSerializer(serializers.ModelSerializer):
