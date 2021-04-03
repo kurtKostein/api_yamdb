@@ -13,19 +13,25 @@ class User(AbstractUser):
         ('user', 'Пользователь'),
     ]
 
-    email = models.EmailField(unique=True)
+    email = models.EmailField(
+        unique=True,
+        verbose_name='Почта')
     confirmation_code = models.CharField(
         max_length=36,
         null=True,
-        blank=True,
         unique=True,
+        verbose_name='Код подтверждения'
     )
     role = models.CharField(
         max_length=36,
         choices=USER_ROLES,
-        default='user'
+        default='user',
+        verbose_name='Роль'
     )
-    bio = models.TextField(blank=True)
+    bio = models.TextField(
+        blank=True,
+        default='user',
+        verbose_name='Биография')
 
     @property
     def is_admin(self):
@@ -34,6 +40,9 @@ class User(AbstractUser):
     @property
     def is_moderator(self):
         return self.role == 'moderator'
+
+    def __str__(self):
+        return self.role
 
 
 class Title(models.Model):
