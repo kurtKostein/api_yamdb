@@ -92,7 +92,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().order_by('reviews__pub_date')
+    queryset = Title.objects.all()
     serializer_class = TitleSerializer
     filterset_class = TitleFilter
     permission_classes = (IsAdminOrReadOnly,)
@@ -104,7 +104,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         return rating
 
     class Meta:
-        ordering = ['rating']
+        ordering = ['reviews__pub_date']
 
 
 class DeleteViewSet(mixins.DestroyModelMixin,
@@ -148,7 +148,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id', ))
-        return title.reviews.all()
+        return title.reviews.all().order_by('-pub_date')
 
     def perform_create(self, serializer):
         serializer.save(
@@ -168,7 +168,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         review_id = self.kwargs.get('review_id', )
         review = get_object_or_404(Review, pk=review_id)
-        return review.comments.all()
+        return review.comments.all().order_by('-pub_date')
 
     def perform_create(self, serializer):
         serializer.save(
