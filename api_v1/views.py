@@ -61,7 +61,7 @@ def send_confirmation_code(request):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by('first_name')
+    queryset = User.objects.all()
     serializer_class = UserSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['username']
@@ -87,9 +87,12 @@ class UserViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
+    class Meta:
+        ordering = ['role']
+
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().order_by('reviews__pub_date')
+    queryset = Title.objects.all()
     serializer_class = TitleSerializer
     filterset_class = TitleFilter
     permission_classes = (IsAdminOrReadOnly,)
@@ -100,6 +103,9 @@ class TitleViewSet(viewsets.ModelViewSet):
             rating=Avg('reviews__score')).order_by('rating')
         return rating
 
+    class Meta:
+        ordering = ['reviews__pub_date']
+
 
 class DeleteViewSet(mixins.DestroyModelMixin,
                     mixins.ListModelMixin,
@@ -109,7 +115,7 @@ class DeleteViewSet(mixins.DestroyModelMixin,
 
 
 class CategoryViewSet(DeleteViewSet):
-    queryset = Category.objects.all().order_by('name')
+    queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', ]
@@ -117,15 +123,21 @@ class CategoryViewSet(DeleteViewSet):
     pagination_class = PageNumberPagination
     lookup_field = 'slug'
 
+    class Meta:
+        ordering = ['name']
+
 
 class GenreViewSet(DeleteViewSet):
-    queryset = Genre.objects.all().order_by('name')
+    queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', ]
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = PageNumberPagination
     lookup_field = 'slug'
+
+    class Meta:
+        ordering = ['name']
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -136,13 +148,16 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id', ))
-        return title.reviews.all().order_by('pub_date')
+        return title.reviews.all().order_by('-pub_date')
 
     def perform_create(self, serializer):
         serializer.save(
             author=self.request.user,
             title=get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         )
+
+    class Meta:
+        ordering = ['-pub_date']
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -153,11 +168,14 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         review_id = self.kwargs.get('review_id', )
         review = get_object_or_404(Review, pk=review_id)
-        return review.comments.all().order_by('pub_date')
+        return review.comments.all().order_by('-pub_date')
 
     def perform_create(self, serializer):
         serializer.save(
             author=self.request.user,
-            review_id=get_object_or_404(
+            review=get_object_or_404(
                 Review, pk=self.kwargs.get('review_id'))
         )
+
+    class Meta:
+        ordering = ['-pub_date']
