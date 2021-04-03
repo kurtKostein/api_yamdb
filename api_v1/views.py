@@ -61,7 +61,7 @@ def send_confirmation_code(request):
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all().order_by('first_name')
+    queryset = User.objects.all()
     serializer_class = UserSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['username']
@@ -87,6 +87,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
 
+    class Meta:
+        ordering = ['role']
+
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all().order_by('reviews__pub_date')
@@ -100,6 +103,9 @@ class TitleViewSet(viewsets.ModelViewSet):
             rating=Avg('reviews__score')).order_by('rating')
         return rating
 
+    class Meta:
+        ordering = ['rating']
+
 
 class DeleteViewSet(mixins.DestroyModelMixin,
                     mixins.ListModelMixin,
@@ -109,7 +115,7 @@ class DeleteViewSet(mixins.DestroyModelMixin,
 
 
 class CategoryViewSet(DeleteViewSet):
-    queryset = Category.objects.all().order_by('name')
+    queryset = Category.objects.all()
     serializer_class = CategorySerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', ]
@@ -117,15 +123,21 @@ class CategoryViewSet(DeleteViewSet):
     pagination_class = PageNumberPagination
     lookup_field = 'slug'
 
+    class Meta:
+        ordering = ['name']
+
 
 class GenreViewSet(DeleteViewSet):
-    queryset = Genre.objects.all().order_by('name')
+    queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', ]
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = PageNumberPagination
     lookup_field = 'slug'
+
+    class Meta:
+        ordering = ['name']
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -136,7 +148,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id', ))
-        return title.reviews.all().order_by('pub_date')
+        return title.reviews.all()
 
     def perform_create(self, serializer):
         serializer.save(
