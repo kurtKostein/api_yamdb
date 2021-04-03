@@ -1,11 +1,11 @@
+import datetime
+
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-import datetime
 
 
 class User(AbstractUser):
-
     class UserRole(models.TextChoices):
         USER = 'user', 'Пользователь'
         MODERATOR = 'moderator', 'Модератор'
@@ -34,11 +34,6 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
 
-    class Meta:
-        verbose_name = 'User'
-        verbose_name_plural = 'Users'
-        ordering = ('username',)
-
     @property
     def is_admin(self):
         return self.role == 'admin' or self.is_staff
@@ -48,7 +43,11 @@ class User(AbstractUser):
         return self.role == 'moderator'
 
     def __str__(self):
-        return User.username
+        return self.email
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
 
 
 class Title(models.Model):
@@ -107,11 +106,12 @@ class Category(models.Model):
 class Genre(models.Model):
     name = models.CharField(
         max_length=200,
-        verbose_name='Название жанра(русский)')
+        verbose_name='Название жанра(русский)'
+    )
     slug = models.CharField(
         max_length=200,
         unique=True,
-        verbose_name='Название жанра(русский)'
+        verbose_name='Название жанра(английский)'
     )
 
     def __str__(self):
@@ -154,7 +154,7 @@ class Review(models.Model):
         verbose_name_plural = 'Отзывы'
 
     def __str__(self):
-        return f'Отзыв к произведению {self.title.name}'
+        return f'Отзыв "{self.author}" к произведению "{self.title.name}"'
 
 
 class Comment(models.Model):
@@ -184,4 +184,5 @@ class Comment(models.Model):
 
     def __str__(self):
         return (f'Комментарий пользователя {self.author.username}, '
-                f'к отзыву на произведение {self.review.title.name}')
+                f'к отзыву "{self.review.author}" '
+                f'на произведение "{self.review.title.name}"')
