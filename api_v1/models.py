@@ -5,27 +5,39 @@ import datetime
 
 
 class User(AbstractUser):
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
-    USER_ROLES = [
-        ('admin', 'Администратор'),
-        ('moderator', 'Модератор'),
-        ('user', 'Пользователь'),
-    ]
 
-    email = models.EmailField(unique=True)
+    class UserRole(models.TextChoices):
+        USER = 'user', 'Пользователь'
+        MODERATOR = 'moderator', 'Модератор'
+        ADMIN = 'admin', 'Администратор'
+
+    email = models.EmailField(
+        unique=True,
+        verbose_name='Почта')
     confirmation_code = models.CharField(
         max_length=36,
         null=True,
-        blank=True,
         unique=True,
+        verbose_name='Код подтверждения'
     )
     role = models.CharField(
         max_length=36,
-        choices=USER_ROLES,
-        default='user'
+        choices=UserRole.choices,
+        default=UserRole.USER,
+        verbose_name='Роль'
     )
-    bio = models.TextField(blank=True)
+    bio = models.TextField(
+        blank=True,
+        default='user',
+        verbose_name='Биография')
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
+
+    class Meta:
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'
+        ordering = ('username',)
 
     @property
     def is_admin(self):
@@ -34,6 +46,9 @@ class User(AbstractUser):
     @property
     def is_moderator(self):
         return self.role == 'moderator'
+
+    def __str__(self):
+        return User.username
 
 
 class Title(models.Model):
