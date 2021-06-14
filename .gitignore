@@ -148,4 +148,6 @@ dmypy.json
 
 # папки со статикой и медиа
 media/
+static/admin/
+static/rest_framework
 
